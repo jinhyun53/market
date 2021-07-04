@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ani.project.hotel.LetterMapper">
+	<insert id="insert">
+		insert into ${letter} (${userId}, ${hotelId}, ${titleLetter}, ${contentLetter}, ${open})
+		values(#{userId}, #{hotelId}, #{titleLetter}, #{contentLetter}, #{open})
+	</insert>
+
+	<select id="selectSend" resultType="LetterVO">
+		select * from ${letter}
+		where ${userId} = #{userId}
+		order by ${numLetter} desc
+	</select>
+	
+	<select id="selectGet" resultType="LetterVO">
+		select * from ${letter}
+		where ${hotelId} = #{hotelId}
+		order by ${numLetter} desc
+	</select>
+	
+	<select id="selectDetail" resultType="LetterVO">
+		select * from ${letter}
+		where ${numLetter} = #{numLetter}		
+	</select>
+	
+	<delete id="delete">
+		delete from ${letter}
+		where ${numLetter} = #{numLetter}
+	</delete>
+	
+	<update id="updateOpen">
+		update ${letter}
+		set ${open} = #{open}
+		where ${numLetter} = #{numLetter}
+	</update>
+	
+</mapper>

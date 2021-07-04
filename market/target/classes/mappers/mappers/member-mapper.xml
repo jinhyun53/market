@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace : 주로 dao 클래스와 연결하기 위한 키로 사용 -->
+<mapper namespace="ani.project.hotel.MemberMapper">
+	
+	<sql id="searchMemberCondition">
+		<if test="conditions != ''">
+			<if test="conditions == 'id'.toString()">
+				 where ${id} like '%' || #{keyword} || '%'
+			</if>
+			<if test="conditions == 'name'.toString()">
+				 where ${name} like '%' || #{keyword} || '%'
+			</if>
+			<if test="conditions == 'email'.toString()">
+				 where ${email} like '%' || #{keyword} || '%'
+			</if>
+			<if test="conditions == 'contact'.toString()">
+				 where ${contact} like '%' || #{keyword} || '%'
+			</if>
+		</if>
+	</sql>
+	
+	<sql id="sortMember">
+		<if test="conditions != ''">
+			<if test="manager != null">
+				<if test="personal != null">
+					<if test="owner != null">
+						and ${authority} in (1, 2, 3) 
+					</if>
+				</if>
+			</if>
+			<if test="manager != null">
+				<if test="personal != null">
+					<if test="owner == null">
+						and ${authority} in (1, 2) 
+					</if>
+				</if>
+			</if>
+			<if test="manager != null">
+				<if test="personal == null">
+					<if test="owner != null">
+						and ${authority} in (1, 3) 
+					</if>
+				</if>
+			</if>
+			<if test="manager != null">
+				<if test="personal == null">
+					<if test="owner == null">
+						and ${authority} in (1) 
+					</if>
+				</if>
+			</if>
+			<if test="manager == null">
+				<if test="personal != null">
+					<if test="owner != null">
+						and ${authority} in (2, 3) 
+					</if>
+				</if>
+			</if>
+			<if test="manager == null">
+				<if test="personal != null">
+					<if test="owner == null">
+						and ${authority} in (2) 
+					</if>
+				</if>
+			</if>
+			<if test="manager == null">
+				<if test="personal == null">
+					<if test="owner != null">
+						and ${authority} in (3) 
+					</if>
+				</if>
+			</if>
+		</if>
+		<if test="conditions == ''">
+			<if test="manager != null">
+				<if test="personal != null">
+					<if test="owner != null">
+						where ${authority} in (1, 2, 3) 
+					</if>
+				</if>
+			</if>
+			<if test="manager != null">
+				<if test="personal != null">
+					<if test="owner == null">
+						where ${authority} in (1, 2) 
+					</if>
+				</if>
+			</if>
+			<if test="manager != null">
+				<if test="personal == null">
+					<if test="owner != null">
+						where ${authority} in (1, 3) 
+					</if>
+				</if>
+			</if>
+			<if test="manager != null">
+				<if test="personal == null">
+					<if test="owner == null">
+						where ${authority} in (1) 
+					</if>
+				</if>
+			</if>
+			<if test="manager == null">
+				<if test="personal != null">
+					<if test="owner != null">
+						where ${authority} in (2, 3) 
+					</if>
+				</if>
+			</if>
+			<if test="manager == null">
+				<if test="personal != null">
+					<if test="owner == null">
+						where ${authority} in (2) 
+					</if>
+				</if>
+			</if>
+			<if test="manager == null">
+				<if test="personal == null">
+					<if test="owner != null">
+						where ${authority} in (3) 
+					</if>
+				</if>
+			</if>
+		</if>
+	</sql>
+	
+	<sql id="deletionMember">
+		<if test="deletion == '1'.toString()">
+			where ${deletion} = 1
+		</if>
+	</sql>
+	<!-- 컬럼이름 : mybatis-config.xml의 name ${컬럼이름} : DB 테이블의 열 #{컬럼이름} : 입력받은 
+		데이터 -->
+		
+	<!-- 회원 가입 -->
+	<insert id="insertMember" > 
+		insert into ${member} (
+						${id}, ${password}, ${name}, ${email}, ${contact}, ${animals},
+						${zipcode}, ${address}, ${detailaddress}, ${birthday},
+						${note}, ${authority}, ${regidate}, ${deletion}, ${exitdate}
+						)
+		values (
+			#{id, jdbcType=VARCHAR}, #{password, jdbcType=VARCHAR}, 
+			#{name, jdbcType=VARCHAR}, #{email, jdbcType=VARCHAR},
+			#{contact, jdbcType=VARCHAR}, #{animals, jdbcType=VARCHAR},	
+			#{zipcode, jdbcType=VARCHAR}, #{address, jdbcType=VARCHAR},
+			#{detailaddress, jdbcType=VARCHAR}, #{birthday, jdbcType=VARCHAR},
+			#{note, jdbcType=VARCHAR}, #{authority, jdbcType=VARCHAR},
+			to_char(sysdate,'yyyy-mm-dd'), #{deletion, jdbcType=VARCHAR},
+			#{exitdate, jdbcType=VARCHAR}
+			)
+	</insert>
+
+	<!-- resultType : select를 했을때 리턴하는 레코드 타입 선언 - 일반적으로 패키지 이름을 포함한 전체경로의 클래스 
+		이름을 사용해야함 - mybatis-config.xml에서 typeAliases 속성을 package로 정의하여 클래스 이름만 사용 -->
+	
+	<select id="checkId" resultType="int">
+		select count(${id})
+		from ${member}
+		where ${id} = #{id}
+	</select>
+	
+	<select id="checkEmail" resultType="int">
+		select count(${email})
+		from ${member}
+		where ${email} = #{email}
+	</select>
+	
+	<select id="login_cheack" resultType="MemberVO"> <!-- 로그인 -->
+		select * from ${member}
+		where ${id} = #{id} and ${password} = #{password} and ${deletion} != 1
+	</select>
+
+	<select resultType="MemberVO" id="select_by_id">
+		select * from ${member}
+		where ${id} like #{id}
+	</select>
+
+	<update id="update_Name">
+	update ${member} set ${name} = #{name} where ${id} =
+		#{id} 
+	</update>
+
+	<update id="update_Contact">update ${member} set ${contact} = #{contact} where
+		${id} = #{id} </update>
+
+	<update id="update_Email">update ${member} set ${email} = #{email} where ${id} =
+		#{id} </update>
+
+	<update id="update_Address">update ${member} set ${address} = #{address}, ${detailaddress} = #{detailaddress} where
+		${id} = #{id} </update>
+
+	<update id="update_Note">update ${member} set ${note} = #{note}where ${id} =
+		#{id} </update>
+
+	<update id="update_Password">update ${member} set ${password} = #{password} where
+		${id} = #{id} </update>
+
+	<update id="update_Birthday">update ${member} set ${birthday} = #{birthday} where
+		${id} = #{id} </update>
+	
+	<update id="update_Animals">update ${member} set ${animals} = #{animals} where
+		${id} = #{id} </update>
+		
+	<update id="delete_Member">
+		update ${member} 
+		set ${deletion} = 1, ${exitdate} = to_char(sysdate,'yyyy-mm-dd')
+		where ${id} = #{id}
+	</update>
+	
+	<select id="memberPaging" resultType="MemberVO">
+		select b.*
+		from ( 
+			select rownum rn, a.*
+			from( 
+				select *
+				from ${member}
+				<include refid="searchMemberCondition"></include>
+				<include refid="sortMember"></include>
+				order by to_date(${regidate},'yyyy-mm-dd') desc
+				)a
+			<include refid="deletionMember"></include>	
+			)b 
+		where rn between #{start} and #{end}
+	</select>
+	
+	<select id="total_member_count" resultType="Integer">
+		select count(*) total_member_cnt from(
+			select * from ${member}
+			<include refid="searchMemberCondition"></include>
+			<include refid="sortMember"></include>
+		)
+		<include refid="deletionMember"></include>
+	</select>
+	
+	<select resultType="MemberVO" id="get_by_id">
+		select * from ${member}
+		where ${id}=#{id}
+	</select>
+	
+	<select id="find_id" resultType="MemberVO">
+		select * from ${member}
+		where ${name}=#{name} and ${email}=#{email}
+	</select> 
+	
+	<select id="find_pw" resultType="MemberVO">
+		select * from ${member}
+		where ${id}=#{id} and ${email}=#{email}
+	</select> 
+	
+	<update id="update_member">
+		update ${member} 
+		set ${password} = #{password}, ${name} = #{name}, ${email} = #{email},
+			${contact} = #{contact}, ${animals} = #{animals}, ${zipcode} = #{zipcode},
+			${address} = #{address}, ${detailaddress} = #{detailaddress},
+			${birthday} = #{birthday}, ${note} = #{note}
+		where ${id} = #{id}
+	</update>
+	
+	<delete id="member_delete">
+		delete from ${member}
+		where ${id} = #{id}
+	</delete>
+	
+	<!-- <delete id="member_delete_all">
+		delete from ${member}
+		where ${id} in (#{id})
+	</delete> -->
+	
+	
+</mapper>

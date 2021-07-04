@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ani.project.hotel.QuestionsMapper">
+	<!-- 문의 게시판 : 쓰기, 읽기, 수정, 삭제, 카운트 -->
+	<insert id="insert">
+		insert into ${questions} (${titleQt},${numHotel}, ${numAnswer}, ${contentQt},${secretCheck}, ${id}, ${numQtReply})
+		values (#{titleQt}, #{numHotel}, #{numAnswer},  #{contentQt}, #{secretCheck}, #{id}, #{numQtReply})
+	</insert>
+	
+	<select id="select_all" resultType="QuestionsVO">
+	select
+	b.*
+	from (
+	select rownum rn, a.*
+	from (
+	select * from ${questions}
+	where ${numHotel} = #{numHotel} and ${numAnswer} = #{numAnswer}
+
+	)a
+	)b order by rn desc
+	</select>
+	
+	<select id="select_reply" resultType="QuestionsVO">
+		select * from ${questions}
+		where ${numQtReply} = #{numQtReply} ORDER BY num_qt asc
+		
+	</select>
+	
+	<update id="update">
+		update ${questions}
+		set ${titleQt} = #{titleQt}, ${secretCheck} = #{secretCheck}, ${contentQt} = #{contentQt}
+		where ${numQt} = #{numQt}
+	</update>
+	
+	<delete id="delete">
+		delete from ${questions}
+		where ${numQt} = #{numQt}
+	</delete>
+	
+	<delete id="delete_all">
+		delete from ${questions}
+		where ${numHotel} = #{numHotel}
+	</delete>	
+	
+	<select id="total_count" resultType="Integer">
+		select count(*) total_cnt from ${questions} where ${numAnswer} = 1 and ${numHotel} = #{numHotel}
+	</select>
+	
+	<select id="QuestionCount">
+		select count (case when ${numQtReply} = #{numQtReply} and ${numAnswer} = #{numAnswer} then 2 end )
+		from ${questions}
+	</select>
+	
+	<select id="questionPaging" resultType="QuestionsVO">
+	select c.* from(
+	select
+	rownum bn, b.*
+	from (
+	select rownum rn, a.*
+	from (
+	select * from
+	${questions}
+	where ${numHotel} = #{numHotel} and ${numAnswer} = 1
+
+	)a order by rn desc
+	)b
+	)c where bn between #{start} and #{end}
+	</select>
+</mapper>

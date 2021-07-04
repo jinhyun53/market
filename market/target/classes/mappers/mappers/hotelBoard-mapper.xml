@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ani.project.hotel.HotelBoardMapper">
+	<sql id="searchCondition">
+		<if test="conditions != null">
+			<!-- 조건 : 지역 -->
+			<if test="conditions == 'district'.toString()">
+				 where checkHotel = 1 and ${address} like #{districtName} || '%'
+			</if>
+			<!-- 조건 : 호텔명 -->
+			<if test="conditions == 'hotel'.toString()">
+				 where checkHotel = 1 and ${titleHotel} like '%' || #{hotelName} || '%'
+			</if>
+		</if>
+	</sql>
+	
+	<sql id="order">
+		<if test="order != null">
+			<!-- 조건 : 호텔넘버 -->
+			<if test="order == 'num'.toString()">
+				order by a.${numHotel} desc nulls last
+			</if>
+			<!-- 조건 : 별점 -->
+			<if test="order == 'star'.toString()">
+				 order by star desc nulls last
+			</if>
+			<!-- 조건 : 가격 오름차순-->
+			<if test="order == 'asc'.toString()">
+				 order by price_Pro asc nulls last
+			</if>
+			<!-- 조건 : 가격 내림차순-->
+			<if test="order == 'desc'.toString()">
+				 order by price_Pro desc nulls last
+			</if>
+		</if>
+	</sql>
+	
+	<insert id="insert">
+		insert into ${hotel_board} (${infoHotel}, ${contentHotel}, ${powerlink}, ${titleHotel}, ${id}, ${hotelImg},${address})
+		values (#{infoHotel}, #{contentHotel}, #{powerlink}, #{titleHotel}, #{id}, #{hotelImg}, #{address})
+	</insert>
+
+	<select id="select_all" resultType="AllInfoVO">
+        SELECT p.${address} as ${address}, h.*, p.*
+        FROM ${hotel_board} h join ${member} p
+        on h.${id} = p.${id}
+        WHERE checkHotel = 0 order by h.${numHotel} desc
+    </select>
+	
+	<select id="select_by_numHotel" resultType="HotelBoardVO">
+		select * from ${hotel_board}
+		where ${numHotel} = #{numHotel}
+	</select>
+	
+	<select id="select_by_id" resultType="HotelBoardVO">
+		select * from ${hotel_board}
+		where ${id} = #{id} ORDER BY ${numHotel} desc
+	</select>
+	
+	<update id="update">
+		update ${hotel_board}
+		set ${infoHotel} = #{infoHotel}, ${contentHotel} = #{contentHotel}, ${powerlink} = #{powerlink}, ${titleHotel} = #{titleHotel}, ${hotelImg} = #{hotelImg}
+		where ${numHotel} = #{numHotel}
+	</update>
+	
+	<delete id="delete">
+		delete from ${hotel_board}
+		where ${numHotel} = #{numHotel}
+	</delete>
+	
+	<select id="paging" resultType="HotelVO">
+	select
+	b.*
+	from (
+	select rownum rn, a.*
+	from (
+	select *
+	from ${hotel_board} inner join
+	(select * from(SELECT ROW_NUMBER() over(PARTITION BY
+	${product}.${numHotel} ORDER BY ${product}.${pricePro} asc) as rum, ${product}.* from
+	${product})
+	where rum=1)a on ${hotel_board}.${numHotel} = a.${numHotel} 
+	left join (select num_hotel,avg(star) as star from review group by num_hotel)c on a.num_hotel = c.num_Hotel
+	<include refid="order"></include>
+
+	)a	<include refid="searchCondition"></include>
+	)b
+	where rn between #{start} and #{end}
+	</select> 
+		
+	<select id="paging_powerlink" resultType="HotelVO">
+		select 
+		*
+		from 
+		${hotel_board} inner join ${product} on ${hotel_board}.${numHotel} = ${product}.${numHotel} where ${powerlink} > 1 and checkHotel = 1 ORDER BY ${powerlink} desc 
+		
+	</select>
+		
+	<select id="select_by_info" resultType="HotelBoardVO">
+		select * from ${hotel_board}
+		where ${infoHotel} like #{infoHotel}
+		order by ${numHotel} desc
+	</select>
+	
+	<select id="select_numhotel" resultType="HotelBoardVO">
+		select * from ${hotel_board} 
+		where ${id} = #{id}
+		and ${titleHotel} = #{titleHotel}
+	</select>
+	
+	<select id="total_count" resultType="Integer">
+		select count(*) total_cnt from (select *
+	from ${hotel_board} inner join
+	(select * from(SELECT ROW_NUMBER() over(PARTITION BY
+	${product}.${numHotel} ORDER BY ${product}.price_Pro asc) as rum, ${product}.* from
+	${product})
+	where rum=1)a on ${hotel_board}.${numHotel} = a.${numHotel})
+	<include refid="searchCondition"></include>
+	</select>
+	
+	<update id="admin_update">
+        update ${hotel_board}
+        set ${checkHotel} =
+        #{checkHotel}
+        where
+        ${numHotel} = #{numHotel}
+    </update>
+    
+
+	
+</mapper>

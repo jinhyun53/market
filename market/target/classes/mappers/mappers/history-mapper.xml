@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ani.project.hotel.HistoryMapper">
+	<insert id="insert">
+		insert into ${historyPurchase} (${checkIn}, ${checkOut}, ${numHotel}, ${numPro}, ${id}, ${timePro},${titleHotel},${pricePurchase}, ${contentHistory})
+		values (#{checkIn}, #{checkOut}, #{numHotel}, #{numPro}, #{id}, #{timePro}, #{titleHotel}, #{pricePurchase}, #{contentHistory})
+	</insert>
+	
+	<select id="select_by_id" resultType="HistoryVO">
+		select * from ${historyPurchase} left join ${product} on 
+		${historyPurchase}.${numPro} = ${product}.num_Pro where ${id} = #{id} order by ${dataPro} desc
+	</select>
+	
+	<insert id="favorites_insert">
+		insert into ${userFavorites} (${id},num_Pro,${timePro},${titleHotel},${hotelImg})
+		values (#{id},#{numPro},#{timePro},#{titleHotel},#{hotelImg})
+	</insert>
+	
+	<select id="select_by_id_userFavorites" resultType="FavoritesVO">
+		select * from ${userFavorites} left join ${product} on 
+		${userFavorites}.${numPro} = ${product}.num_Pro where ${id} = #{id} order by ${titleHotel} desc
+	</select>
+	
+	<delete id="delete_favorites">delete from ${userFavorites} where ${numFavorites} = #{numFavorites}</delete>
+	
+	<delete id="delete_by_id_favorites">delete from ${userFavorites} where ${id} = #{id}</delete>
+	
+	<delete id="deleteNumHistory">delete from ${historyPurchase} where ${numHistory} = #{numHistory}</delete>
+</mapper>

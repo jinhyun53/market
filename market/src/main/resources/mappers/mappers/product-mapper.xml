@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 상품 mapper -->
+<mapper namespace="ani.project.hotel.ProductMapper">
+	<select id="insert">
+		insert into ${product} (${namePro}, ${pricePro}, ${salePro}, ${numHotel})
+		values (#{namePro}, #{pricePro}, #{salePro}, #{numHotel})
+	</select>
+	
+	<update id="update">
+		update ${product}
+		set ${namePro} = #{namePro}, ${pricePro} = #{pricePro}, ${salePro} = #{salePro}
+		where ${numPro} = #{numPro}
+	</update>
+	
+	<update id="update_soldPro">
+		update ${product}
+		set ${soldPro} = #{soldPro}
+		where ${numPro} = #{numPro}
+	</update>
+	
+	<delete id="delete">
+		delete from ${product}
+		where ${numPro} = #{numPro}
+	</delete>
+	
+	<delete id="delete_numHotel">
+		delete from ${product}
+		where ${numHotel} = #{numHotel}
+	</delete>
+	
+	<select id="select_by_numHotel" resultType="ProductVO">
+		select * from ${product}
+		where ${numHotel} = #{numHotel}
+	</select>
+	
+</mapper>

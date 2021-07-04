@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- DB 테이블과 컬럼들을 mapper 매핑을 위한 변수 선언-->
+	<properties> 
+	</properties>
+	<!-- Underscore 명명법을 Camel  명명법으로 매핑-->
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+	</settings>
+	
+	
+	<!--
+	typeAliases : mapper.xml의 select 리턴 타입에 들어갈 클래스 경로를 설정
+	 -->
+</configuration>

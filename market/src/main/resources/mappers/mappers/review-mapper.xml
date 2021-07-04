@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ani.project.hotel.ReviewMapper">
+	<insert id="insert">
+		insert into ${review} (${numHotel}, ${id}, ${star}, ${titleReview}, ${contentReview})
+		values (#{numHotel}, #{id}, #{star}, #{titleReview}, #{contentReview})
+	</insert>
+	
+	<select id="select_review" resultType="ReviewVO">
+		select * from ${review}
+		where ${numReview} = #{numReview}
+	</select>
+	
+	<select id="select_all" resultType="ReviewVO">
+		
+				select * from ${review}
+		where ${numHotel} = #{numHotel}
+		order by ${numReview} desc
+	</select>
+	
+	
+	
+	<update id="update">
+		update ${review}
+		set ${star} = #{star}, ${titleReview} = #{titleReview}, ${contentReview} = #{contentReview}, ${dateReview} = #{dateReview}
+		where ${numReview} = #{numReview}
+	</update>
+	
+	<delete id="delete">
+		delete from ${review}
+		where ${numReview} = #{numReview}
+	</delete>
+	
+	<delete id="delete_all">
+		delete from ${review}
+		where ${numHotel} = #{numHotel}
+	</delete>
+	
+	<select id="review_count">
+		SELECT COUNT(*) ${numReview} FROM ${review}
+		where ${numHotel} = #{numHotel};
+	</select>
+	
+	<select id="reviewPaging" parameterType="map" resultType="ReviewVO">
+				select 
+		*
+		from ( 
+			select rownum rn, a.* 
+			from (
+				select * from ${review}  where ${numHotel} = #{numHotel} order by ${numReview} desc
+			)a
+		)b 
+		where rn between #{start} and #{end}
+	
+	</select> 
+	
+	<select id="total_count" resultType="Integer">
+		select count(*) total_cnt from (				select * from ${review}
+		where ${numHotel} = #{numHotel}
+		order by ${numReview} desc)
+	</select>
+	
+</mapper>
